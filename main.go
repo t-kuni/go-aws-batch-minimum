@@ -10,6 +10,13 @@ import (
 func main() {
 	fmt.Println("Hello, World!")
 
+	// 全ての環境変数を標準出力に出力
+	fmt.Println("\n=== Environment Variables ===")
+	for _, env := range os.Environ() {
+		fmt.Println(env)
+	}
+	fmt.Println("=============================\n")
+
 	// APP_WAIT環境変数を取得（単位：秒）
 	waitSecondsStr := os.Getenv("APP_WAIT")
 	if waitSecondsStr != "" {
