@@ -6,6 +6,7 @@
 |-----------|------|------------|------|
 | APP_WAIT | 処理を待機する時間（秒） | なし | 正の整数を指定。指定がない場合は待機しない |
 | APP_RESULT | 処理結果の指定 | なし | "FAIL" を指定するとexitコード1で終了 |
+| APP_SF_TASK_TOKEN | Step Functionsタスクトークン | なし | 指定時はStep FunctionsのSendTaskSuccess/SendTaskFailureを呼び出す |
 
 ## デプロイ手順
 
