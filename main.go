@@ -17,6 +17,7 @@ import (
 type TaskOutput struct {
 	Status string `json:"status"`
 	Result string `json:"result"`
+	Items  []int  `json:"items"`
 }
 
 func main() {
@@ -47,6 +48,7 @@ func main() {
 	// APP_RESULT環境変数を確認
 	result := os.Getenv("APP_RESULT")
 	taskToken := os.Getenv("APP_SF_TASK_TOKEN")
+	itemsCountStr := os.Getenv("APP_RESULT_ITEMS_COUNT")
 
 	// Step Functionsのタスクトークンが指定されている場合
 	if taskToken != "" {
@@ -78,9 +80,25 @@ func main() {
 			os.Exit(1)
 		} else {
 			// 成功の場合: SendTaskSuccessを呼び出す
+			// APP_RESULT_ITEMS_COUNTに基づいてitemsを生成
+			items := []int{}
+			if itemsCountStr != "" {
+				itemsCount, err := strconv.Atoi(itemsCountStr)
+				if err != nil {
+					log.Fatalf("Error: APP_RESULT_ITEMS_COUNT must be a valid integer: %v", err)
+				}
+				if itemsCount > 0 {
+					items = make([]int, itemsCount)
+					for i := 0; i < itemsCount; i++ {
+						items[i] = i + 1
+					}
+				}
+			}
+
 			output := TaskOutput{
 				Status: "SUCCESS",
 				Result: fmt.Sprintf("Task completed at %s", time.Now().Format(time.RFC3339)),
+				Items:  items,
 			}
 
 			outputJSON, err := json.Marshal(output)
