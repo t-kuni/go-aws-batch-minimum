@@ -9,21 +9,37 @@
 | APP_SF_TASK_TOKEN | Step Functionsタスクトークン | なし | 指定時はStep FunctionsのSendTaskSuccess/SendTaskFailureを呼び出す |
 | APP_RESULT_ITEMS_COUNT | 結果に含めるアイテム数 | なし | 正の整数を指定。SendTaskSuccessのOutputのitemsに[1,2,3,...]の連番を格納。指定がない場合はitemsは空配列 |
 
-## デプロイ手順
+## デプロイ手順 (ECS用)
 
 ```
 AWS_ACCOUNT_ID=XXXXX
-IMG_TAG=${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/step-func-example/go-aws-batch-minimum
+IMG_TAG_CMD=${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/step-func-example/go-aws-batch-minimum
 
 # ECRにログイン
-aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${IMG_TAG}
+aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${IMG_TAG_CMD}
 
 # イメージをビルド
-docker build -t ${IMG_TAG} .
+docker build -f Dockerfile.cmd -t ${IMG_TAG_CMD} .
 
 # イメージをプッシュ
-docker push ${IMG_TAG}
+docker push ${IMG_TAG_CMD}
 
 # コンテナを実行
-docker run --rm ${IMG_TAG}
+docker run --rm ${IMG_TAG_CMD}
+```
+
+## デプロイ手順 (Lambda用)
+
+```
+AWS_ACCOUNT_ID=XXXXX
+IMG_TAG_LAMBDA=${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/step-func-example/go-aws-batch-minimum_lambda
+
+# ECRにログイン
+aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${IMG_TAG_LAMBDA}
+
+# イメージをビルド
+docker build -f Dockerfile.lambda -t ${IMG_TAG_LAMBDA} .
+
+# イメージをプッシュ
+docker push ${IMG_TAG_LAMBDA}
 ```
