@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"time"
 
@@ -17,6 +18,7 @@ type app struct {
 	result           string
 	taskToken        string
 	resultItemsCount int
+	failPercent      float64
 }
 
 // TaskOutput は Step Functionsに返すペイロードの構造体です
@@ -50,6 +52,11 @@ func (a *app) SetResultItemsCount(resultItemsCount int) *app {
 	return a
 }
 
+func (a *app) SetFailPercent(failPercent float64) *app {
+	a.failPercent = failPercent
+	return a
+}
+
 func (a *app) Exec() {
 	fmt.Println("Hello, World!")
 
@@ -64,6 +71,16 @@ func (a *app) Exec() {
 		fmt.Printf("Waiting for %d seconds...\n", a.waitSeconds)
 		time.Sleep(time.Duration(a.waitSeconds) * time.Second)
 		fmt.Println("Wait completed.")
+	}
+
+	// failPercentに基づいて確率的に失敗させる
+	if a.failPercent > 0 {
+		randomValue := rand.Float64()
+		fmt.Printf("failPercent: %.2f, randomValue: %.2f\n", a.failPercent, randomValue)
+		if randomValue < a.failPercent {
+			fmt.Println("Random failure triggered based on failPercent")
+			a.result = "FAIL"
+		}
 	}
 
 	// Step Functionsのタスクトークンが指定されている場合
