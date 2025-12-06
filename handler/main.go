@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -9,12 +10,12 @@ import (
 )
 
 type StepFunctionInput struct {
-	WaitSeconds      int     `json:"wait_seconds"`
-	Result           string  `json:"result"`
-	TaskToken        string  `json:"task_token"`
-	ResultItemsCount int     `json:"result_items_count"`
-	FailPercent      float64 `json:"fail_percent"`
-	Input            string  `json:"input"`
+	WaitSeconds      int             `json:"wait_seconds"`
+	Result           string          `json:"result"`
+	TaskToken        string          `json:"task_token"`
+	ResultItemsCount int             `json:"result_items_count"`
+	FailPercent      float64         `json:"fail_percent"`
+	Input            json.RawMessage `json:"input"`
 }
 
 func handler(ctx context.Context, event StepFunctionInput) (string, error) {
