@@ -8,6 +8,7 @@
 | APP_RESULT | 処理結果の指定 | なし | "FAIL" を指定するとexitコード1で終了 |
 | APP_SF_TASK_TOKEN | Step Functionsタスクトークン | なし | 指定時はStep FunctionsのSendTaskSuccess/SendTaskFailureを呼び出す |
 | APP_RESULT_ITEMS_COUNT | 結果に含めるアイテム数 | なし | 正の整数を指定。SendTaskSuccessのOutputのitemsに[1,2,3,...]の連番を格納。指定がない場合はitemsは空配列 |
+| APP_FAIL_PERCENT | 確率的に失敗させる割合 | なし | 0〜1の実数を指定。例: 0.3 で30%の確率で失敗。指定された確率で処理が失敗扱いとなり、APP_RESULT="FAIL"と同じ動作をする |
 
 ## デプロイ手順 (ECS用)
 
