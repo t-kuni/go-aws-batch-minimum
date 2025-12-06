@@ -9,6 +9,7 @@ import (
 
 func handler(ctx context.Context) (string, error) {
 	app.Exec()
+	return "Hello, Lambda!", nil
 }
 
 func main() {
