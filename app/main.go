@@ -6,12 +6,18 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sfn"
 )
+
+type app struct {
+	waitSeconds      int
+	result           string
+	taskToken        string
+	resultItemsCount int
+}
 
 // TaskOutput は Step Functionsに返すペイロードの構造体です
 type TaskOutput struct {
@@ -20,7 +26,31 @@ type TaskOutput struct {
 	Items  []int  `json:"items"`
 }
 
-func Exec() {
+func NewApp() *app {
+	return &app{}
+}
+
+func (a *app) SetWaitSeconds(waitSeconds int) *app {
+	a.waitSeconds = waitSeconds
+	return a
+}
+
+func (a *app) SetResult(result string) *app {
+	a.result = result
+	return a
+}
+
+func (a *app) SetTaskToken(taskToken string) *app {
+	a.taskToken = taskToken
+	return a
+}
+
+func (a *app) SetResultItemsCount(resultItemsCount int) *app {
+	a.resultItemsCount = resultItemsCount
+	return a
+}
+
+func (a *app) Exec() {
 	fmt.Println("Hello, World!")
 
 	// 全ての環境変数を標準出力に出力
@@ -30,28 +60,14 @@ func Exec() {
 	}
 	fmt.Println("=============================\n")
 
-	// APP_WAIT環境変数を取得（単位：秒）
-	waitSecondsStr := os.Getenv("APP_WAIT")
-	if waitSecondsStr != "" {
-		waitSeconds, err := strconv.Atoi(waitSecondsStr)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: APP_WAIT must be a valid integer: %v\n", err)
-			os.Exit(1)
-		}
-		if waitSeconds > 0 {
-			fmt.Printf("Waiting for %d seconds...\n", waitSeconds)
-			time.Sleep(time.Duration(waitSeconds) * time.Second)
-			fmt.Println("Wait completed.")
-		}
+	if a.waitSeconds > 0 {
+		fmt.Printf("Waiting for %d seconds...\n", a.waitSeconds)
+		time.Sleep(time.Duration(a.waitSeconds) * time.Second)
+		fmt.Println("Wait completed.")
 	}
 
-	// APP_RESULT環境変数を確認
-	result := os.Getenv("APP_RESULT")
-	taskToken := os.Getenv("APP_SF_TASK_TOKEN")
-	itemsCountStr := os.Getenv("APP_RESULT_ITEMS_COUNT")
-
 	// Step Functionsのタスクトークンが指定されている場合
-	if taskToken != "" {
+	if a.taskToken != "" {
 		ctx := context.Background()
 
 		// AWS設定とStep Functionsクライアントの初期化
@@ -62,13 +78,13 @@ func Exec() {
 
 		sfnClient := sfn.NewFromConfig(cfg)
 
-		if result == "FAIL" {
+		if a.result == "FAIL" {
 			// 失敗の場合: SendTaskFailureを呼び出す
 			errorMessage := "APP_RESULT is FAIL. Task execution failed."
-			log.Printf("Task failed. Sending SendTaskFailure for token: %s", taskToken)
+			log.Printf("Task failed. Sending SendTaskFailure for token: %s", a.taskToken)
 
 			_, err := sfnClient.SendTaskFailure(ctx, &sfn.SendTaskFailureInput{
-				TaskToken: &taskToken,
+				TaskToken: &a.taskToken,
 				Error:     stringPtr("TaskExecutionFailed"),
 				Cause:     stringPtr(errorMessage),
 			})
@@ -80,19 +96,9 @@ func Exec() {
 			os.Exit(1)
 		} else {
 			// 成功の場合: SendTaskSuccessを呼び出す
-			// APP_RESULT_ITEMS_COUNTに基づいてitemsを生成
-			items := []int{}
-			if itemsCountStr != "" {
-				itemsCount, err := strconv.Atoi(itemsCountStr)
-				if err != nil {
-					log.Fatalf("Error: APP_RESULT_ITEMS_COUNT must be a valid integer: %v", err)
-				}
-				if itemsCount > 0 {
-					items = make([]int, itemsCount)
-					for i := 0; i < itemsCount; i++ {
-						items[i] = i + 1
-					}
-				}
+			items := make([]int, a.resultItemsCount)
+			for i := 0; i < a.resultItemsCount; i++ {
+				items[i] = i + 1
 			}
 
 			output := TaskOutput{
@@ -106,9 +112,9 @@ func Exec() {
 				log.Fatalf("failed to marshal output JSON: %v", err)
 			}
 
-			log.Printf("Task succeeded. Sending SendTaskSuccess for token: %s", taskToken)
+			log.Printf("Task succeeded. Sending SendTaskSuccess for token: %s", a.taskToken)
 			_, err = sfnClient.SendTaskSuccess(ctx, &sfn.SendTaskSuccessInput{
-				TaskToken: &taskToken,
+				TaskToken: &a.taskToken,
 				Output:    stringPtr(string(outputJSON)),
 			})
 
@@ -119,7 +125,7 @@ func Exec() {
 		}
 	} else {
 		// タスクトークンが指定されていない場合は従来の動作
-		if result == "FAIL" {
+		if a.result == "FAIL" {
 			fmt.Println("APP_RESULT is FAIL. Exiting with code 1.")
 			os.Exit(1)
 		}

@@ -7,7 +7,15 @@ import (
 	"github.com/t-kuni/go-aws-batch-minimum/app"
 )
 
-func handler(ctx context.Context) (string, error) {
+type StepFunctionInput struct {
+	WaitSeconds      int    `json:"wait_seconds"`
+	Result           string `json:"result"`
+	TaskToken        string `json:"task_token"`
+	ResultItemsCount int    `json:"result_items_count"`
+}
+
+func handler(ctx context.Context, event StepFunctionInput) (string, error) {
+	app := app.NewApp()
 	app.Exec()
 	return "Hello, Lambda!", nil
 }
