@@ -38,7 +38,7 @@ IMG_TAG_LAMBDA=${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/step-func-
 aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${IMG_TAG_LAMBDA}
 
 # イメージをビルド
-docker build -f Dockerfile.lambda -t ${IMG_TAG_LAMBDA} .
+docker buildx build --platform linux/amd64 --provenance=false -f Dockerfile.lambda -t ${IMG_TAG_LAMBDA} .
 
 # イメージをプッシュ
 docker push ${IMG_TAG_LAMBDA}

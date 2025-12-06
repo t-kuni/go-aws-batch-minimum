@@ -2,18 +2,10 @@
 FROM golang:1.25.4 AS builder
 
 WORKDIR /app
-
-# Go modulesの初期化とダウンロード
-COPY go.mod go.sum* ./
-RUN if [ -f go.sum ]; then go mod download; fi
-
-# ソースコードをコピー
 COPY . .
-
-# バイナリをビルド
-RUN CGO_ENABLED=0 GOOS=linux go build -o main ./handler
+RUN go build -tags lambda.norpc -o main ./handler/main.go
 
 # 本番ステージ
 FROM public.ecr.aws/lambda/provided:al2023
-COPY --from=builder /app/main ${LAMBDA_TASK_ROOT}/
-CMD ["main"]
+COPY --from=builder /app/main ./main
+ENTRYPOINT [ "./main" ]
