@@ -60,8 +60,17 @@ func (a *app) SetFailPercent(failPercent float64) *app {
 func (a *app) Exec() {
 	fmt.Println("Hello, World!")
 
+	// アプリケーションパラメータを標準出力に出力
+	fmt.Println("\n=== Application Parameters ===")
+	fmt.Printf("waitSeconds:      %d\n", a.waitSeconds)
+	fmt.Printf("result:           %s\n", a.result)
+	fmt.Printf("taskToken:        %s\n", a.taskToken)
+	fmt.Printf("resultItemsCount: %d\n", a.resultItemsCount)
+	fmt.Printf("failPercent:      %.2f\n", a.failPercent)
+	fmt.Println("===============================\n")
+
 	// 全ての環境変数を標準出力に出力
-	fmt.Println("\n=== Environment Variables ===")
+	fmt.Println("=== Environment Variables ===")
 	for _, env := range os.Environ() {
 		fmt.Println(env)
 	}
