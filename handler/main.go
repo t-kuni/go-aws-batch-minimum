@@ -4,10 +4,11 @@ import (
 	"context"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/t-kuni/go-aws-batch-minimum/app"
 )
 
 func handler(ctx context.Context) (string, error) {
-	return "Hello, Lambda!", nil
+	app.Exec()
 }
 
 func main() {
