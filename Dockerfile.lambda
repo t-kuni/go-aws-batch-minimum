@@ -3,9 +3,11 @@ FROM golang:1.25.4 AS builder
 
 WORKDIR /app
 COPY . .
-RUN go build -tags lambda.norpc -o main ./handler/main.go
+RUN go build -tags lambda.norpc -o bootstrap ./handler/main.go
 
 # 本番ステージ
 FROM public.ecr.aws/lambda/provided:al2023
-COPY --from=builder /app/main ./main
-ENTRYPOINT [ "./main" ]
+WORKDIR /var/task
+COPY --from=builder /app/bootstrap ./bootstrap
+RUN chmod +x ./bootstrap
+ENTRYPOINT [ "./bootstrap" ]
